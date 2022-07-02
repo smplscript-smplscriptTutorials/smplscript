@@ -9,10 +9,10 @@ std::string shellcmd() {
 	//std::cout << "smpl > ";
 	//std::getline(std::cin, command);
 	//return command;
-	Lexer lexer = Lexer("+-*/");
+	Lexer lexer = Lexer("1234 + 1234.");
 	std::vector<Token> x = lexer.make_tokens();
 	for (int i = 0; i < x.size(); i++) {
-	 std::cout << x[i].as_string();
-  }
+		std::cout << x[i].as_string();
+	}
 	return "";
 }

@@ -33,7 +33,7 @@ private:
 	std::string value;
 	std::string type;
 	std::string errorname;
-  std::string pos;
+	std::string pos;
 public:
 	Token(std::string t, std::string v);
 	Token(std::string t);
@@ -45,37 +45,37 @@ Token::Token(std::string t, std::string v) {
 	type = t;
 	value = v;
 	errorname = none;
-  pos = none;
+	pos = none;
 }
 Token::Token(std::string t) {
 	type = t;
 	value = none;
 	errorname = none;
-  pos = none;
+	pos = none;
 }
 Token::Token(std::string t, std::string en, std::string v, int p) {
-  std::stringstream x;
-  int temp = p;
-  temp++;
-  x << temp;
+	std::stringstream x;
+	int temp = p;
+	temp++;
+	x << temp;
 	type = t;
 	errorname = en;
 	value = v;
-  x >> pos;
+	x >> pos;
 }
 
 std::string Token::returnError() {
 	std::string col = ": ";
-  std::string at = " at column ";
+	std::string at = " at column ";
 	return errorname + col + value + at + pos;
 }
 
 std::string Token::as_string() {
-	std::string col = ": ";
-  std::string space = " ";
+	std::string col = ":";
+	std::string space = " ";
 	if (!errorname.compare(none)) {
 		if (!value.compare(none)) return type + space;
-		return type + col + value;
+		return type + col + value + space;
 	}
 	return Token::returnError();
 }
@@ -93,6 +93,7 @@ public:
 	Lexer(std::string t);
 	void advance();
 	std::vector<Token> make_tokens();
+	Token make_num();
 };
 
 void Lexer::advance() {
@@ -103,6 +104,30 @@ void Lexer::advance() {
 Lexer::Lexer(std::string t) {
 	text = t;
 	Lexer::advance();
+}
+
+Token Lexer::make_num() {
+	std::string num_string;
+	int dots = 0;
+	while (current != None && current != '\t' && current != ' ') {
+		if (current == '.') {
+			if (dots == 1)
+				break;
+			dots++;
+			num_string.append(".");
+		}
+		else {
+			num_string += current;
+		}
+		Lexer::advance();
+	}
+	if (num_string.at(num_string.length() - 1) == '.') {
+		num_string.append("0");
+	}
+	if (dots == 1) {
+		return Token(tt_float, num_string);
+	}
+	return Token(tt_int, num_string);
 }
 
 std::vector<Token> Lexer::make_tokens() {
@@ -135,11 +160,12 @@ std::vector<Token> Lexer::make_tokens() {
 			tokens.push_back(Token(tt_rparen));
 			Lexer::advance();
 		}
-
-
+		else if (digits.find(current) != std::string::npos) {
+			tokens.push_back(Lexer::make_num());
+		}
 		else {
 			std::string illegalChar = "Illegal Character";
-      std::string errorx = " Error";
+			std::string errorx = " Error";
 			std::string sq = "'";
 			std::string currentChar(1, current);
 			std::string col = ": ";
